@@ -89,11 +89,11 @@ The current build uses mock risk-analysis data while the real AI and regulatory 
 
 ---
 
-## AI Architecture
+## Technical Architecture
 
-ERC AI is being developed for the:
+![ERC AI Hackathon Technical Architecture](erc-ai-hackathon-technical-architecture.png)
 
-**Nebius x NVIDIA Global AI Hackathon 2026**
+ERC AI is being developed for the **Nebius x NVIDIA Global AI Hackathon 2026**.
 
 Planned AI stack:
 
@@ -103,23 +103,6 @@ Planned AI stack:
 - Regulatory retrieval
 - Risk validation
 - Official-source citations
-
-Workflow:
-
-Exporter  
-↓  
-Shipment Intake  
-↓  
-ERC AI Backend  
-↓  
-Regulatory Retrieval  
-↓  
-Nebius Token Factory + NVIDIA Nemotron  
-↓  
-Risk Rules & Validation  
-↓  
-Structured Risk Report
-
 ---
 
 ## Initial Risk Modules
