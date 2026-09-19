@@ -175,6 +175,22 @@ In progress:
 - Risk validation
 
 ---
+## Current Development Status — 19 September 2026
+
+ERC AI is currently under active development for the Nebius x NVIDIA Global AI Hackathon 2026.
+
+* Working responsive prototype completed
+* RiskReport v1 schema implemented
+* Dynamic jurisdiction-aware regulatory source architecture completed
+* Evidence and source validation completed
+* ERC AI system prompt completed
+* AI provider abstraction completed
+* Server-side AI architecture and security boundary implemented
+* Nebius Token Factory integration in progress
+* Current runtime remains **MOCK** until the live Nebius Token Factory integration is enabled
+
+The current prototype is designed so that deterministic regulatory checks, official-source evidence, AI reasoning, and structured risk reporting remain separated and auditable.
+---
 
 ## Disclaimer
 
