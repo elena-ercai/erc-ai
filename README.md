@@ -64,3 +64,20 @@ npx tsx scripts/dry-run-request-builder.ts  # 80 context-building checks
 - React 18 + TypeScript
 - Tailwind CSS + shadcn/ui
 - Lucide React icons
+---
+Day 3 progress (20 September 2026)
+Check export risks before you trade. ERC AI is a private decision-support service based on information the user provides; it does not verify the authenticity of user documents or issue official approvals.
+
+The intake is now form first. Users can edit the form directly and optionally open Ask Ercie for fixed field guidance. Ercie's AI conversation, multilingual extraction, and translation are not connected yet.
+
+Required fields: product name / description, HS Code, export country, country of origin, and destination country. Buyer/importer information is optional. Without a buyer, buyer screening is not performed; buyer screening is not implemented yet even when a buyer is supplied.
+
+HS Code lookup links depend on the export country. Taiwan has official lookup links; other countries must not reuse Taiwan's links. The user acknowledges the product, code, and export country combination. This is not an official or AI-verified classification.
+
+One browser-stored draft is supported. Starting a new check asks before replacing an existing draft. Confirm opens the complete English-form review; only Start Risk Check calls the analysis API.
+
+The report displays the confirmed form, but PDF download and an exportable form attachment are not yet implemented.
+
+Architecture: the editable form and optional Ercie guidance lead to an English-form review, then a separate risk-check API and report. Ercie and risk analysis may later share one configured AI provider while using separate roles and output formats. Asking Ercie for help must never trigger a risk check. The risk-check runtime is currently MOCK, and live official-source retrieval and supported risk findings still require implementation and verification. Report data currently lives in browser storage.
+
+Bolt reported passing type checks, build, and regression tests. End-to-end browser testing and a live regulatory accuracy review are still pending. MOCK output must not be presented as a real risk assessment during the association pilot.
