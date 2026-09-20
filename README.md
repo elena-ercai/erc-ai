@@ -1,216 +1,66 @@
 # ERC AI — Export Risk Check AI
 
-**Identify risks before you ship.**
-
-ERC AI is an AI-powered pre-export risk advisory application designed for exporters and SMEs who already have buyers.
-
-It helps users identify potential regulatory and compliance risks before shipment and transforms complex trade requirements into clear, actionable next steps.
-
----
-
-## The Problem
-
-Exporters often need to navigate fragmented and rapidly changing regulatory requirements across multiple jurisdictions.
-
-Before shipment, they may need to review:
-
-- Product classification and HS code issues
-- Buyer / restricted-party risks
-- Export control requirements
-- Destination-market regulations
-- Tariff and trade-remedy considerations
-- Sustainability requirements such as CBAM
-- Supply-chain and due-diligence obligations
-
-For SMEs without dedicated compliance teams, this process can be complex, time-consuming, and difficult to interpret.
-
----
-
-## The Solution
-
-ERC AI provides a structured pre-export risk check.
-
-Users enter:
-
-- Product
-- HS Code
-- Exporting country
-- Destination country
-- Buyer / Importer
-- End use
-- Product origin
-- Supply-chain information
-- Supporting documents
-
-ERC AI is designed to generate a:
-
-## Pre-Export Risk Advisory Report
-
-including:
-
-- Overall Risk Assessment
-- Product & Classification Risk
-- Buyer / Entity Risk
-- Export Control Risk
-- Import & Market Access Requirements
-- Sustainability / CBAM Considerations
-- Missing Evidence
-- Recommended Next Actions
-- Official Regulatory Sources
-
----
-
-## Core Principle
-
-ERC AI follows:
-
-**Evidence → Reasoning → Risk → Action**
-
-If available evidence is insufficient, the system should return:
-
-**Insufficient Evidence — Human Review Recommended**
-
----
-
-## Current MVP
-
-The current web MVP includes:
-
-- Home Dashboard
-- Shipment Intake
-- Shipment Review
-- Pre-Export Risk Advisory Report
-- Regulations interface
-- Evidence checklist
-- Recommended next actions
-- Responsive desktop and mobile UI
-
-The current build uses mock risk-analysis data while the real AI and regulatory retrieval layers are being integrated.
-
----
-
-## Technical Architecture
-
-![ERC AI Hackathon Technical Architecture](erc-ai-hackathon-technical-architecture.png)
-
-ERC AI is being developed for the **Nebius x NVIDIA Global AI Hackathon 2026**.
-
-Planned AI stack:
-
-- Nebius Token Factory
-- NVIDIA Nemotron
-- Structured AI outputs
-- Regulatory retrieval
-- Risk validation
-- Official-source citations
----
-
-## Initial Risk Modules
-
-1. Product & Classification
-2. Buyer / Entity Risk
-3. Export Control
-4. Import & Market Access
-5. Tariff & Trade Remedy
-6. ESG / Sustainability
-7. Forced Labour / Due Diligence
-
-Hackathon MVP focus:
-
-- Product / Classification
-- Buyer / Entity Risk
-- Export Control
-- Sustainability / CBAM
-
----
-
-## Example Use Case
-
-- Product: Aluminum profiles
-- HS Code: 7604.10
-- Exporting country: Taiwan
-- Destination: United Kingdom
-- Buyer: UK Building Solutions Ltd.
-- End use: Building and construction
-
----
-
-## Technology
-
-Frontend:
-
-- Next.js
-- React
-- TypeScript
-- Tailwind CSS
-
-AI / Backend:
-
-- Nebius Token Factory
-- NVIDIA Nemotron
-- Structured JSON output
-- Regulatory retrieval layer
-
----
-
-## Project Status
-
-**MVP under active development**
-
-Completed:
-
-- Functional frontend workflow
-- Shipment Intake
-- Review workflow
-- Mock Risk Advisory Report
-- Regulations interface
-- Responsive UI
-
-In progress:
-
-- Nebius / Nemotron integration
-- Live regulatory retrieval
-- Structured AI risk reasoning
-- Official-source citations
-- Risk validation
-
----
-## Current Development Status — 19 September 2026
-
-ERC AI is currently under active development for the Nebius x NVIDIA Global AI Hackathon 2026.
-
-* Working responsive prototype completed
-* RiskReport v1 schema implemented
-* Dynamic jurisdiction-aware regulatory source architecture completed
-* Evidence and source validation completed
-* ERC AI system prompt completed
-* AI provider abstraction completed
-* Server-side AI architecture and security boundary implemented
-* Nebius Token Factory integration in progress
-* Current runtime remains **MOCK** until the live Nebius Token Factory integration is enabled
-
-The current prototype is designed so that deterministic regulatory checks, official-source evidence, AI reasoning, and structured risk reporting remain separated and auditable.
----
-
-## Disclaimer
-
-ERC AI provides risk-assessment and regulatory guidance only.
-
-It does not constitute legal advice, customs clearance, export authorization, or an official government determination.
-
----
-
-## Project Lead
-
-**Elena Ya Ling Chen**
-
-Founder & Project Lead  
-ERC AI — Export Risk Check AI
-
-GitHub: `elena-ercai`
-
----
-
-## Hackathon
-
-Built for the **Nebius x NVIDIA Global AI Hackathon 2026**.
+**交易前，風險檢查。Check export risks before you trade.**
+
+ERC AI is an AI-powered pre-export risk advisory tool that helps exporters and traders assess regulatory risks before deciding to enter a market or trade.
+
+## Current Status
+
+### Working Features
+
+- **Ercie conversational wizard** (`components/ercie.tsx`) — A multi-language (English, Traditional Chinese, Simplified Chinese, Japanese) step-by-step form assistant that guides users through 12 shipment fields with field-level explanations, re-asking on "I don't know", and skip for optional fields.
+- **HS Code validation** — Accepts only 6-digit or 8-digit numeric HS Codes; rejects 7-digit codes.
+- **HS Code lookup** (`lib/hs-code-sources.ts`) — Country-specific official HS Code lookup links. Currently Taiwan has two verified sources (Taiwan Customs, Taiwan Trade Bureau). Other countries show a "no verified source" message directing users to the relevant customs authority.
+- **Export country change detection** — If the user changes the export country after confirming an HS Code, the wizard prompts re-confirmation before allowing submission.
+- **Review page** (`app/check/review/page.tsx`) — Shows the final confirmed English form. The user must click "Start Risk Check" to trigger the API. No auto-submission.
+- **Risk report** — Displays a multi-tab report with Executive Summary, Detail by Regulation, Evidence Checklist, Sources, and Confirmed Form tabs.
+- **Buyer-less operation** — When no buyer/importer is provided, the report displays "未提供買主資料，本次未執行買主風險檢查" and does NOT generate any buyer risk screening findings.
+- **Data disclaimer** — Reports include "本報告依據您確認提供的資料產生。ERC AI does not provide official approval, clearance, or verify data authenticity."
+- **Responsive design** — Desktop and mobile layouts with proper breakpoints.
+
+### MOCK / Not Yet Implemented
+
+- **AI provider** — The risk analysis uses a MOCK provider (`services/ai/providers/mock.ts`) with deterministic jurisdiction-aware logic. The Nebius AI provider (`services/ai/providers/nebius.ts`) exists but is not connected. Ercie itself is a fixed-step conversational UI with pre-written prompts — it does NOT use natural language understanding, AI-powered follow-up questions, or AI-based field mapping. All prompts and responses are hardcoded in `components/ercie.tsx`.
+- **Buyer / entity risk screening** — Not implemented. The mock provider does not perform sanctions checks, buyer scoring, or entity risk screening. The `BUYER_ENTITY_RISK` domain is mapped but never triggered.
+- **Document-assisted form filling** — The upload area in the wizard displays "coming soon". No file upload or OCR functionality exists.
+- **HS Code vs product name cross-check** — Not implemented. The wizard accepts the HS Code as entered; it does not verify that the code matches the product description.
+- **Confirmed Form export** — The "Confirmed Form" tab in the report is a display-only view within the report page. It is NOT an exportable attachment. PDF download is also not implemented.
+- **Report PDF generation** — The "Download PDF" button shows an alert indicating it will be enabled in a later build.
+- **Data persistence** — Reports and shipments are stored in browser localStorage only. No database backend is connected.
+
+## Architecture
+
+```
+app/
+  check/new/          — Ercie wizard (conversational intake)
+  check/review/       — Final English form review + "Start Risk Check" button
+  check/results/[id]/  — Risk report with 5 tabs
+  api/analyze-shipment/ — POST endpoint that runs the mock analysis pipeline
+components/
+  ercie.tsx           — Multi-language conversational wizard
+lib/
+  app-components.tsx  — Shared UI (Dashboard, Review, Report, AppShell, etc.)
+  hs-code-sources.ts  — Country-specific HS Code lookup sources
+  models.ts           — Shipment and RiskReport TypeScript types
+services/
+  ai/                 — Analysis pipeline (mock + Nebius providers)
+  risk-engine/        — Schema, coverage status, effective-date logic
+  sources/            — Regulatory source registry
+  regulations/        — Regulation definitions (UK CBAM, EU CBAM, etc.)
+```
+
+## Testing
+
+```bash
+npm run typecheck              # TypeScript type checking
+npm run build                  # Production build
+npx tsx scripts/regression-test.ts       # 3 shipment scenarios (A/B/C)
+npx tsx scripts/dry-run-request-builder.ts  # 80 context-building checks
+```
+
+## Tech Stack
+
+- Next.js 13.5 (App Router)
+- React 18 + TypeScript
+- Tailwind CSS + shadcn/ui
+- Lucide React icons

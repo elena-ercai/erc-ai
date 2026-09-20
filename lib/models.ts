@@ -18,6 +18,7 @@ export interface Shipment {
   productCharacteristics: string;
   exportingCountry: string;
   destinationCountry: string;
+  countryOfOrigin: string;
   buyerImporter: string;
   plannedImportDate: string;
   endUse: string;

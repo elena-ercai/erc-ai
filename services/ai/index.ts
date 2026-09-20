@@ -73,6 +73,7 @@ function buildShipmentSnapshot(shipment: Shipment): ShipmentSnapshot {
     keyProductCharacteristics: shipment.productCharacteristics || undefined,
     exportJurisdiction: shipment.exportingCountry,
     destinationJurisdiction: shipment.destinationCountry,
+    countryOfOrigin: shipment.countryOfOrigin || undefined,
     plannedImportDate: shipment.plannedImportDate,
     buyerImporter: shipment.buyerImporter,
     endUse: shipment.endUse || undefined,

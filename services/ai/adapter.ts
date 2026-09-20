@@ -113,6 +113,7 @@ function mapShipment(snap: SchemaRiskReport['shipment']): Shipment {
     productCharacteristics: snap.keyProductCharacteristics || '',
     exportingCountry: snap.exportJurisdiction,
     destinationCountry: snap.destinationJurisdiction,
+    countryOfOrigin: snap.countryOfOrigin || '',
     buyerImporter: snap.buyerImporter,
     plannedImportDate: snap.plannedImportDate,
     endUse: snap.endUse || '',

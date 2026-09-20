@@ -6,7 +6,7 @@ const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
   title: 'ERC AI — Export Risk Check AI',
-  description: 'Identify risks before you ship.',
+  description: 'Check export risks before you trade. AI-powered export risk advice to help you decide whether to enter a market or trade.',
   openGraph: {
     images: [
       {

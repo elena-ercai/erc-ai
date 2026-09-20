@@ -19,7 +19,7 @@ export const checks = [
 
 export const navItems = [
   ['Home', '/', HomeIcon],
-  ['New Check', '/check/new', Zap],
+  ['New Check', '/check/new?new=1', Zap],
   ['My Checks', '/checks', ClipboardList],
   ['Regulations', '/regulations', BookOpen],
   ['Resources', '/resources', Globe2],
@@ -87,8 +87,14 @@ function flagEmoji(country: string): string {
 
 export function JurisdictionSelector({ onChange }: { onChange?: (country: string) => void }) {
   const [open, setOpen] = useState(false);
-  const [country, setCountry] = useState(getGlobalJurisdiction());
+  // Always start with the server-safe default so SSR and initial client render match.
+  // After mount, overwrite with whatever is stored in localStorage.
+  const [country, setCountry] = useState('Taiwan');
   const [search, setSearch] = useState('');
+  useEffect(() => {
+    const stored = localStorage.getItem('erc-jurisdiction');
+    if (stored && stored !== 'Taiwan') setCountry(stored);
+  }, []);
   const select = (c: string) => {
     setCountry(c);
     setGlobalJurisdiction(c);
@@ -134,7 +140,7 @@ export function JurisdictionSelector({ onChange }: { onChange?: (country: string
   );
 }
 
-function CountrySelect({ label, required, value, onChange }: { label: string; required?: boolean; value: string; onChange: (v: string) => void }) {
+export function CountrySelect({ label, required, value, onChange }: { label: string; required?: boolean; value: string; onChange: (v: string) => void }) {
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState('');
   const filtered = allCountries.filter((c) => c.toLowerCase().includes(search.toLowerCase()));
@@ -179,6 +185,12 @@ export function AppShell({ children, active = '/' }: { children: React.ReactNode
   const router = useRouter();
   const [menu, setMenu] = useState(false);
   const [jurKey, setJurKey] = useState(0);
+  const [hasDraft, setHasDraft] = useState(false);
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      setHasDraft(!!localStorage.getItem('erc-shipment'));
+    }
+  }, []);
   return (
     <div className="app-frame" onClick={() => { /* close dropdowns on outside click */ }}>
       <header className="top-nav">
@@ -209,12 +221,17 @@ export function AppShell({ children, active = '/' }: { children: React.ReactNode
               <Icon size={18} /><span>{label}</span>
             </button>
           ))}
+          {hasDraft && (
+            <button className="side-item side-item-draft" onClick={() => router.push('/check/new')}>
+              <ChevronLeft size={18} /><span>Continue Draft</span>
+            </button>
+          )}
           <div className="sidebar-note"><Globe2 size={58} /><strong>Safer trade.<br />A brighter tomorrow.</strong><i /></div>
         </aside>
         <main className="main-content">{children}</main>
       </div>
       <footer className="footer">
-        <span>ERC AI &nbsp;|&nbsp; Export Risk Check AI &nbsp;|&nbsp; Identify risks before you ship.</span>
+        <span>ERC AI &nbsp;|&nbsp; Export Risk Check AI &nbsp;|&nbsp; Check export risks before you trade.</span>
         <span className="footer-disclaimer">ERC AI provides risk-assessment and regulatory guidance only. It does not constitute legal advice, customs clearance, export authorization, or an official government determination.</span>
       </footer>
     </div>
@@ -268,7 +285,7 @@ export function getDemoShipment(): Shipment {
   return {
     productName: 'Aluminum profiles', hsCode: '7604.10', productCategory: 'Aluminum & Metals',
     productCharacteristics: 'Aluminum extrusions, non-alloy, for construction use',
-    exportingCountry: jurisdiction, destinationCountry: 'United Kingdom', buyerImporter: 'UK Building Solutions Ltd.',
+    exportingCountry: jurisdiction, destinationCountry: 'United Kingdom', countryOfOrigin: jurisdiction, buyerImporter: 'UK Building Solutions Ltd.',
     plannedImportDate: '2027-01-15',
     endUse: 'Building and construction use',
     supplyChainInformation: `Primary aluminum from ${jurisdiction} suppliers`, certificates: 'Mill Certificate, Certificate of Origin',
@@ -278,7 +295,7 @@ export function getDemoShipment(): Shipment {
 export const demoShipment: Shipment = {
   productName: 'Aluminum profiles', hsCode: '7604.10', productCategory: 'Aluminum & Metals',
   productCharacteristics: 'Aluminum extrusions, non-alloy, for construction use',
-  exportingCountry: 'Taiwan', destinationCountry: 'United Kingdom', buyerImporter: 'UK Building Solutions Ltd.',
+  exportingCountry: 'Taiwan', destinationCountry: 'United Kingdom', countryOfOrigin: 'Taiwan', buyerImporter: 'UK Building Solutions Ltd.',
   plannedImportDate: '2027-01-15',
   endUse: 'Building and construction use',
   supplyChainInformation: 'Primary aluminum from Taiwan suppliers', certificates: 'Mill Certificate, Certificate of Origin',
@@ -300,9 +317,9 @@ export function Dashboard() {
           <div className="eyebrow">GLOBAL COMPLIANCE &nbsp;•&nbsp; SMARTER TRADE &nbsp;•&nbsp; BRIGHTER TOMORROW</div>
           <h1>ERC AI</h1>
           <div className="hero-subtitle">Export Risk Check AI</div>
-          <h2>Identify risks before you ship.</h2>
-          <p>AI-powered pre-export risk advisory for exporters<br />who already have buyers.</p>
-          <div className="zh">出口前，風險檢查。</div>
+          <h2>Check export risks before you trade.</h2>
+          <p>AI-powered export risk advice to help you decide<br />whether to enter a market or trade.</p>
+          <div className="zh">交易前，風險檢查。</div>
         </div>
         <div className="hero-art">
           <div className="orbit orbit-one" /><div className="orbit orbit-two" />
@@ -315,7 +332,7 @@ export function Dashboard() {
             <div className="feature-card" key={label as string}><span className={cx('feature-icon', `tone-${tone}`)}><Icon size={20} /></span><strong>{label as string}</strong></div>
           ))}
         </div>
-        <PrimaryButton onClick={() => router.push('/check/new')}>New Export Risk Check</PrimaryButton>
+        <PrimaryButton onClick={() => router.push('/check/new?new=1')}>New Export Risk Check</PrimaryButton>
       </section>
       <section className="confidence-banner">
         <div><h2>Navigate global trade<br />with confidence.</h2><p>Turn complex regulations into clear actions<br />with the power of AI.</p></div>
@@ -344,7 +361,7 @@ function blankShipment(): Shipment {
   const jurisdiction = getGlobalJurisdiction();
   return {
     productName: '', hsCode: '', productCategory: '', productCharacteristics: '',
-    exportingCountry: jurisdiction, destinationCountry: '', buyerImporter: '',
+    exportingCountry: jurisdiction, destinationCountry: '', countryOfOrigin: '', buyerImporter: '',
     plannedImportDate: '', endUse: '',
     supplyChainInformation: '', certificates: '',
   };
@@ -421,26 +438,52 @@ export function Review() {
   const router = useRouter();
   const [shipment, setShipment] = useState<Shipment | null>(null);
   const [processing, setProcessing] = useState(false);
+  const [hsConfirmed, setHsConfirmed] = useState<{ product: string; code: string; country: string } | null>(null);
+  const [reviewError, setReviewError] = useState('');
+
   useEffect(() => {
     try { setShipment(JSON.parse(localStorage.getItem('erc-shipment') || 'null')); } catch { setShipment(null); }
+    try { setHsConfirmed(JSON.parse(localStorage.getItem('erc-hs-confirmed') || 'null')); } catch { setHsConfirmed(null); }
   }, []);
   if (!shipment) return (
     <AppShell active="/check/new">
-      <div className="empty-state"><AlertTriangle size={30} /><h2>No shipment found</h2><p>Start a new check to review shipment details.</p><PrimaryButton onClick={() => router.push('/check/new')}>Start New Check</PrimaryButton></div>
+      <div className="empty-state"><AlertTriangle size={30} /><h2>No shipment found</h2><p>Start a new check to review shipment details.</p><PrimaryButton onClick={() => router.push('/check/new?new=1')}>Start New Check</PrimaryButton></div>
     </AppShell>
   );
   const formatDate = (iso: string) => iso ? new Date(iso).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : 'Not provided';
   const fields = [
     ['Product', shipment.productName], ['HS Code', shipment.hsCode || 'Not provided'],
-    ['Exporting Country', shipment.exportingCountry], ['Destination', shipment.destinationCountry],
+    ['Exporting Country', shipment.exportingCountry], ['Country of Origin', shipment.countryOfOrigin || 'Not provided'],
+    ['Destination', shipment.destinationCountry],
     ['Planned Import / Entry Date', formatDate(shipment.plannedImportDate)],
-    ['Buyer / Importer', shipment.buyerImporter], ['End Use', shipment.endUse || 'Not provided'],
+    ['Buyer / Importer', shipment.buyerImporter || 'Not provided'], ['End Use', shipment.endUse || 'Not provided'],
     ['Supply Chain', shipment.supplyChainInformation || 'Not provided'],
     ['Certificates', shipment.certificates || 'Not provided'],
   ];
   const exportCov = getCoverageStatus(shipment.exportingCountry);
   const destCov = getCoverageStatus(shipment.destinationCountry);
+  const hsNeedsConfirm = shipment &&
+    !!shipment.hsCode &&
+    !!shipment.exportingCountry &&
+    !!shipment.productName &&
+    (hsConfirmed?.product !== shipment.productName ||
+     hsConfirmed?.code !== shipment.hsCode ||
+     hsConfirmed?.country !== shipment.exportingCountry);
+
+  const confirmHsOnReview = () => {
+    if (!shipment) return;
+    const triple = { product: shipment.productName, code: shipment.hsCode, country: shipment.exportingCountry };
+    setHsConfirmed(triple);
+    localStorage.setItem('erc-hs-confirmed', JSON.stringify(triple));
+    setReviewError('');
+  };
+
   const confirm = async () => {
+    if (hsNeedsConfirm) {
+      setReviewError('Please confirm the HS Code is valid for the selected export country before running the check.');
+      return;
+    }
+    setReviewError('');
     setProcessing(true);
     const response = await fetch('/api/analyze-shipment', {
       method: 'POST',
@@ -458,14 +501,14 @@ export function Review() {
   };
   return (
     <AppShell active="/check/new">
-      <PageHeader title="Review Your Shipment" subtitle="Please confirm the shipment information before running the Export Risk Check." action={<Stepper step={2} />} />
+      <PageHeader title="Review Your Shipment" subtitle="Please confirm the final English form below. This is the data that will be sent to the risk check." action={<Stepper step={2} />} />
       {processing ? (
         <div className="processing-card content-card">
           <div className="processing-icon"><Sparkles size={28} /></div>
           <h2>Checking your shipment...</h2>
           <p>Using demo risk assessment data for this Day 1 build.</p>
           <div className="processing-list">
-            {['Validating shipment information', 'Checking applicable regulations', 'Screening buyer / entity risk', 'Reviewing export-control considerations', 'Evaluating market-access requirements', 'Preparing risk advisory report'].map((item, index) => (
+            {['Validating shipment information', 'Checking applicable regulations', 'Reviewing export-control considerations', 'Evaluating market-access requirements', 'Preparing risk advisory report'].map((item, index) => (
               <div key={item} className="processing-step" style={{ animationDelay: `${index * 0.25}s` }}><CheckCircle2 size={17} />{item}</div>
             ))}
           </div>
@@ -480,10 +523,23 @@ export function Review() {
           <div className="review-grid">
             {fields.map(([label, value]) => <div key={label}><small>{label}</small><strong>{value}</strong></div>)}
           </div>
-          <div className="disclaimer"><Info size={17} /><span>This is a confirmation step. ERC AI will generate a mock advisory report for demonstration purposes.</span></div>
+          {!shipment.buyerImporter && (
+            <div className="disclaimer ercie-buyer-notice"><Info size={17} /><span>未提供買主資料，本次未執行買主風險檢查。Buyer risk screening was not performed. Other checks still run.</span></div>
+          )}
+          {hsNeedsConfirm && (
+            <div className="hs-confirm-banner">
+              <AlertTriangle size={14} />
+              <span>You are using HS <strong>{shipment.hsCode}</strong> for this shipment (export country: <strong>{shipment.exportingCountry}</strong>). Please confirm this is the code you intend to use.</span>
+              <button type="button" className="hs-confirm-btn" onClick={confirmHsOnReview}>
+                I confirm HS {shipment.hsCode} for this shipment (export country: {shipment.exportingCountry})
+              </button>
+            </div>
+          )}
+          <div className="disclaimer"><Info size={17} /><span>本報告依據您確認提供的資料產生。This report is generated based on data you confirmed. ERC AI does not provide official approval, clearance, or verify data authenticity.</span></div>
+          {reviewError && <div className="form-error"><AlertTriangle size={16} />{reviewError}</div>}
           <div className="form-actions">
-            <button className="secondary-button" onClick={() => router.push('/check/new')}><ChevronLeft size={16} /> Back to Edit</button>
-            <PrimaryButton onClick={confirm}>Confirm & Run Check</PrimaryButton>
+            <button className="secondary-button" onClick={() => router.push('/check/new')}><ChevronLeft size={16} /> Edit Form</button>
+            <PrimaryButton onClick={confirm}>Start Risk Check</PrimaryButton>
           </div>
         </div>
       )}
@@ -501,10 +557,10 @@ export function Report({ id }: { id: string }) {
   }, []);
   if (!report) return (
     <AppShell active="/checks">
-      <div className="empty-state"><AlertTriangle size={30} /><h2>Report not found</h2><PrimaryButton onClick={() => router.push('/check/new')}>Start New Check</PrimaryButton></div>
+      <div className="empty-state"><AlertTriangle size={30} /><h2>Report not found</h2><PrimaryButton onClick={() => router.push('/check/new?new=1')}>Start New Check</PrimaryButton></div>
     </AppShell>
   );
-  const tabs = ['Executive Summary', 'Detail by Regulation', 'Evidence Checklist', 'Sources'];
+  const tabs = ['Executive Summary', 'Detail by Regulation', 'Evidence Checklist', 'Sources', 'Confirmed Form'];
   const copyUrl = () => {
     if (typeof navigator !== 'undefined') { navigator.clipboard?.writeText(window.location.href); alert('Report link copied to clipboard.'); }
   };
@@ -529,8 +585,9 @@ export function Report({ id }: { id: string }) {
           <h3>{report.shipment.productName}</h3>
           <p>HS Code: {report.shipment.hsCode || 'Not provided'}</p>
           <p>Exporting from: {report.shipment.exportingCountry} → Destination: {report.shipment.destinationCountry}</p>
+          <p>Country of Origin: {report.shipment.countryOfOrigin || 'Not provided'}</p>
           <p>Planned Import Date: {report.shipment.plannedImportDate ? new Date(report.shipment.plannedImportDate).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : 'Not provided'}</p>
-          <p>Buyer: {report.shipment.buyerImporter}</p>
+          <p>Buyer: {report.shipment.buyerImporter || 'Not provided — buyer risk screening not performed'}</p>
           <div className="report-coverage">
             <div><small>Export-side coverage</small>{report.exportCoverage && <CoverageBadge status={report.exportCoverage} />}</div>
             <div><small>Destination coverage</small>{report.destinationCoverage && <CoverageBadge status={report.destinationCoverage} />}</div>
@@ -543,6 +600,22 @@ export function Report({ id }: { id: string }) {
       </div>
       {tab === 'Executive Summary' && (
         <>
+          <section className="ercie-report-disclaimer content-card">
+            <Info size={18} />
+            <div>
+              <strong>本報告依據您確認提供的資料產生。</strong>
+              <p>This report is generated based on data you confirmed. ERC AI does not provide official approval, clearance, or verify data authenticity.</p>
+            </div>
+          </section>
+          {!report.shipment.buyerImporter && (
+            <section className="ercie-report-disclaimer content-card ercie-buyer-notice">
+              <AlertTriangle size={18} />
+              <div>
+                <strong>未提供買主資料，本次未執行買主風險檢查。</strong>
+                <p>No buyer information was provided. Buyer / entity risk screening was not performed in this check. Other regulatory checks were still conducted.</p>
+              </div>
+            </section>
+          )}
           <section className="assessment">
             <div className="assessment-symbol"><AlertTriangle size={28} /></div>
             <div>
@@ -636,6 +709,7 @@ export function Report({ id }: { id: string }) {
       {tab === 'Detail by Regulation' && <DetailTab findings={report.findings} sources={report.sources} />}
       {tab === 'Evidence Checklist' && <EvidenceTab evidence={report.evidence} isInsufficientEvidence={report.overallRisk === 'INSUFFICIENT_EVIDENCE'} />}
       {tab === 'Sources' && <SourcesTab sources={report.sources} />}
+      {tab === 'Confirmed Form' && <ConfirmedFormTab shipment={report.shipment} />}
       {modal && <Modal onClose={() => setModal(false)} />}
     </AppShell>
   );
@@ -788,6 +862,40 @@ function SourcesTab({ sources }: { sources: RiskReport['sources'] }) {
   );
 }
 
+function ConfirmedFormTab({ shipment }: { shipment: Shipment }) {
+  const formatDate = (iso: string) => iso ? new Date(iso).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : 'Not provided';
+  const rows: [string, string][] = [
+    ['Product name / description', shipment.productName || 'Not provided'],
+    ['HS Code', shipment.hsCode || 'Not provided'],
+    ['Export country', shipment.exportingCountry || 'Not provided'],
+    ['Country of origin', shipment.countryOfOrigin || 'Not provided'],
+    ['Destination country', shipment.destinationCountry || 'Not provided'],
+    ['Buyer / Importer', shipment.buyerImporter || 'Not provided — buyer risk screening not performed'],
+    ['Planned import date', formatDate(shipment.plannedImportDate)],
+    ['Product category', shipment.productCategory || 'Not provided'],
+    ['Key product characteristics', shipment.productCharacteristics || 'Not provided'],
+    ['End use', shipment.endUse || 'Not provided'],
+    ['Supply-chain information', shipment.supplyChainInformation || 'Not provided'],
+    ['Known certificates / documents', shipment.certificates || 'Not provided'],
+  ];
+  return (
+    <section className="detail-list">
+      <div className="content-card">
+        <div className="section-heading"><ClipboardList size={19} /><h3>Confirmed English Form</h3></div>
+        <p className="source-empty" style={{ marginBottom: '14px' }}>本表單與實際送檢資料一致。This is the exact data that was sent to the risk check, as confirmed by you.</p>
+        <div className="review-grid">
+          {rows.map(([label, value]) => (
+            <div key={label}>
+              <small>{label}</small>
+              <strong>{value}</strong>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
 function Modal({ onClose }: { onClose: () => void }) {
   return (
     <div className="modal-backdrop" onClick={onClose}>
@@ -814,7 +922,7 @@ export function ChecksPage() {
   ];
   return (
     <AppShell active="/checks">
-      <PageHeader title="My Checks" subtitle="Review your saved export risk assessments and continue where you left off." action={<PrimaryButton onClick={() => router.push('/check/new')}>New Export Risk Check</PrimaryButton>} />
+      <PageHeader title="My Checks" subtitle="Review your saved export risk assessments and continue where you left off." action={<PrimaryButton onClick={() => router.push('/check/new?new=1')}>New Export Risk Check</PrimaryButton>} />
       <section className="content-card">
         <div className="card-heading"><h2>Recent Checks</h2><span>5 demo records</span></div>
         <div className="table-wrap">

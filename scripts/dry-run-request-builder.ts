@@ -40,6 +40,7 @@ async function main() {
     productCharacteristics: "Fabricated stainless steel bracket; welded and machined; non-food-contact product; non-electrical; designed for industrial machinery installation.",
     exportingCountry: "Taiwan",
     destinationCountry: "Germany",
+    countryOfOrigin: "Taiwan",
     plannedImportDate: "2026-11-15",
     buyerImporter: "DE Industrial Systems GmbH (Demo Buyer)",
     endUse: "Industrial machinery installation and structural mounting.",

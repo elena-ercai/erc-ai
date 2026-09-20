@@ -47,6 +47,7 @@ export interface ShipmentSnapshot {
 
   exportJurisdiction: string;
   destinationJurisdiction: string;
+  countryOfOrigin?: string;
 
   plannedImportDate: string;
 
